@@ -15,13 +15,13 @@ Welcome to the Project! This README will guide you through the setup process aft
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/Zain4391/Project_Management.git
 ```
 
 Navigate to the project directory:
 
 ```bash
-cd your-repo-name
+cd Project_Management
 ```
 
 ### 2. Install Dependencies
