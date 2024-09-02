@@ -59,7 +59,7 @@ Make sure to replace the placeholder values with your actual configuration:
 Start the application using the following command:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Your application should now be running, and you can access it via your specified `APP_URL`.
