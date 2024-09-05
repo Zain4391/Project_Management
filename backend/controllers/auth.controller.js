@@ -1,10 +1,12 @@
 import { db } from "../db/Connect.js";
 import bcrypt from "bcryptjs";
-import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 import { generateVerificationCode } from "../utils/generateVerificationCode.js";
 import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
-import { VERIFICATION_EMAIL_TEMPLATE } from "../nodemailer/email_templates.js";
+import {
+  VERIFICATION_EMAIL_TEMPLATE,
+  WELCOME_EMAIL_TEMPLATE,
+} from "../nodemailer/email_templates.js";
 import { transporter } from "../nodemailer/nodemailer.config.js";
 import { error } from "console";
 
@@ -38,8 +40,9 @@ export const signup = async (req, res) => {
     //generate jwt token and set cookie
     generateTokenSetCookie(res, userid);
 
-    const role = "Member"; //default role upon signup (can be modded later by admin)
+    const role = "Member"; //default role upon signup (can be modified later by admin)
 
+    // Insert values in the database
     const response = await db.query(
       "INSERT INTO Users (id,name,email,password,role,verificationToken,verificationTokenExpiry) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id",
       [
@@ -53,6 +56,7 @@ export const signup = async (req, res) => {
       ]
     );
 
+    // Send Mail for verification
     const mailOptions = {
       from: "zainrasoolhashmi@gmail.com",
       to: email,
@@ -70,9 +74,62 @@ export const signup = async (req, res) => {
         console.log("Email sent: " + info.response);
       }
     });
+
+    // return successful response from the API along with the ID of the latest created user
     return res
       .status(200)
       .json({ message: "User Added to Database", UserId: response.rows[0].id });
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    const result = await db.query(
+      "SELECT id,verificationTokenExpiry,name,email FROM Users WHERE verificationToken = $1",
+      [code]
+    );
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: "Invalid Verification Code" });
+    }
+
+    if (Date.now() > result.rows[0].verificationTokenExpiry) {
+      return res
+        .status(400)
+        .json({ message: "token expired, please signup again!" });
+    }
+
+    const verified = true;
+    const expiry = null;
+    const token = null;
+
+    await db.query(
+      "UPDATE Users SET isVerified = $2, verificationToken = $3, verificationTokenExpiry = $4 WHERE id = $1",
+      [result.rows[0].id, verified, token, expiry]
+    );
+
+    //send welcome email to the user
+    const mailOptions = {
+      from: "zainrasoolhashmi@gmail.com",
+      to: result.rows[0].email,
+      subject: "Welcome On-Board!",
+      html: WELCOME_EMAIL_TEMPLATE.replace("{username}", result.rows[0].name),
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+
+    return res
+      .status(200)
+      .json({ message: "User Verified successfully, email sent!" });
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }
