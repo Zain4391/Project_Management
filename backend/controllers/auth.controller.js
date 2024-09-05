@@ -85,23 +85,28 @@ export const signup = async (req, res) => {
 };
 
 export const verifyEmail = async (req, res) => {
-  const { code } = req.body;
+  const { code } = req.body; // extract verification token from request body
 
   try {
+    // attempt to get the user from database
     const result = await db.query(
       "SELECT id,verificationTokenExpiry,name,email FROM Users WHERE verificationToken = $1",
       [code]
     );
+
+    // check for user existence
     if (result.rows.length === 0) {
       return res.status(400).json({ message: "Invalid Verification Code" });
     }
 
+    // check for expired token
     if (Date.now() > result.rows[0].verificationTokenExpiry) {
       return res
         .status(400)
         .json({ message: "token expired, please signup again!" });
     }
 
+    // set user as verified and update the corresponding record
     const verified = true;
     const expiry = null;
     const token = null;
@@ -116,7 +121,7 @@ export const verifyEmail = async (req, res) => {
       from: "zainrasoolhashmi@gmail.com",
       to: result.rows[0].email,
       subject: "Welcome On-Board!",
-      html: WELCOME_EMAIL_TEMPLATE.replace("{username}", result.rows[0].name),
+      html: WELCOME_EMAIL_TEMPLATE.replace(/{username}/g, result.rows[0].name),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
