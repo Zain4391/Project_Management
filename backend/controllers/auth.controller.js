@@ -4,11 +4,16 @@ import crypto from "crypto";
 import { generateVerificationCode } from "../utils/generateVerificationCode.js";
 import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
 import {
+  PASSWORD_RESET_REQUEST_TEMPLATE,
+  PASSWORD_RESET_SUCCESS_TEMPLATE,
   VERIFICATION_EMAIL_TEMPLATE,
   WELCOME_EMAIL_TEMPLATE,
 } from "../nodemailer/email_templates.js";
 import { transporter } from "../nodemailer/nodemailer.config.js";
 import { error } from "console";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
@@ -142,6 +147,9 @@ export const verifyEmail = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and Password are required" });
+  }
   try {
     const result = await db.query("SELECT * FROM Users WHERE email = $1", [
       email,
@@ -168,4 +176,112 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   res.clearCookie("token");
   return res.status(200).json({ message: "Logged out successfully" });
+};
+
+// TODO: Forgot and reset password
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+  try {
+    const result = await db.query("SELECT * FROM Users WHERE email = $1", [
+      email,
+    ]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    //generate rpt
+    const rpt = crypto.randomBytes(20).toString("hex");
+    const expiry = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hr expiry
+
+    //save data to Database
+    await db.query(
+      "UPDATE Users SET resetPasswordToken = $2, resetPasswordTokenExpiry = $3 WHERE id = $1",
+      [result.rows[0].id, rpt, expiry]
+    );
+
+    // Send Mail for password reset
+    const mailOptions = {
+      from: "zainrasoolhashmi@gmail.com",
+      to: result.rows[0].email,
+      subject: "Reset Your Password",
+      html: PASSWORD_RESET_REQUEST_TEMPLATE.replace(
+        "{resetURL}",
+        `${process.env.APP_URL}/reset-password/${rpt}`
+      ),
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+
+    res
+      .status(200)
+      .json({ message: "Reset Password Email sent to your email" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: "Error, please try again later" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token || !password) {
+      return res
+        .status(400)
+        .json({ message: "Please provide token and password" });
+    }
+
+    const result = await db.query(
+      "SELECT * FROM Users WHERE resetPasswordToken = $1",
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+
+    if (Date.now() > result.rows[0].resetPasswordTokenExpiry) {
+      return res.status(400).json({ message: "Token has expired" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10); //update users password
+    const resetToken = null;
+    const resetexpiry = null;
+
+    //update the Users table
+    await db.query(
+      "UPDATE Users SET resetPasswordToken = $2, resetPasswordTokenExpiry = $3, password = $4 WHERE id = $1",
+      [result.rows[0].id, resetToken, resetexpiry, hashedPassword]
+    );
+
+    const mailOptions = {
+      from: "zainrasoolhashmi@gmail.com",
+      to: result.rows[0].email,
+      subject: "Password reset successful",
+      html: PASSWORD_RESET_SUCCESS_TEMPLATE,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
 };
