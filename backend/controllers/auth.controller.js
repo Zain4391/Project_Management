@@ -10,13 +10,12 @@ import {
   WELCOME_EMAIL_TEMPLATE,
 } from "../nodemailer/email_templates.js";
 import { transporter } from "../nodemailer/nodemailer.config.js";
-import { error } from "console";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 export const signup = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
   try {
     if (!email || !name || !password) {
       return res.status(400).json({ message: "Please fill in all fields" });
@@ -45,7 +44,7 @@ export const signup = async (req, res) => {
     //generate jwt token and set cookie
     generateTokenSetCookie(res, userid);
 
-    const role = "Member"; //default role upon signup (can be modified later by admin)
+    const Userrole = role; //default role upon signup (can be modified later by admin)
 
     // Insert values in the database
     const response = await db.query(
@@ -55,7 +54,7 @@ export const signup = async (req, res) => {
         name,
         email,
         hashedPassword,
-        role,
+        Userrole,
         verificationToken,
         verificationTokenExpiresAT,
       ]
@@ -177,8 +176,6 @@ export const logout = async (req, res) => {
   res.clearCookie("token");
   return res.status(200).json({ message: "Logged out successfully" });
 };
-
-// TODO: Forgot and reset password
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;

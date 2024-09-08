@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import { db } from "./db/Connect.js";
 import { Create_Tables } from "./models/project_manager.model.js";
 import authRoute from "./routes/authRoutes.js";
+import userRoute from "./routes/userRoutes.js";
 dotenv.config(); //use .env variables
 const app = express();
 
@@ -27,6 +28,7 @@ if (!url) {
 
 //use all authentication routes
 app.use("/api/auth", authRoute);
+app.use("/", userRoute);
 
 app.listen(PORT, () => {
   db.connect((err) => {
