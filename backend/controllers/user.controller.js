@@ -103,7 +103,7 @@ export const patchUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await db.query("SELECT * FROM Users WHERE id = $1", [id]);
-    if (!user.rows.length === 0) {
+    if (user.rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -129,7 +129,7 @@ export const patchUser = async (req, res) => {
       )
         .replace("{email}", email)
         .replace("{password}", password)
-        .replace("{name}", username),
+        .replace("{name}", user.rows[0].name || "USER"),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
