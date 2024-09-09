@@ -17,7 +17,7 @@ dotenv.config();
 export const signup = async (req, res) => {
   const { name, email, password, role } = req.body;
   try {
-    if (!email || !name || !password) {
+    if (!email || !name || !password || !role) {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
@@ -44,7 +44,7 @@ export const signup = async (req, res) => {
     //generate jwt token and set cookie
     generateTokenSetCookie(res, userid);
 
-    const Userrole = role; //default role upon signup (can be modified later by admin)
+    const Userrole = role;
 
     // Insert values in the database
     const response = await db.query(

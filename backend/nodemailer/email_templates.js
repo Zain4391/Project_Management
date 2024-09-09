@@ -125,3 +125,47 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const ADMIN_USER_CREDNTAILS_EMAIL = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Account Details</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  
+  <div style="background: linear-gradient(to right, #333, #444); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Welcome to Our App!</h1>
+  </div>
+
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello <strong>{name}</strong>,</p>
+    
+    <p>Your account has been successfully created by the admin. You can now log in and start using our services.</p>
+    
+    <p><strong>Your Login Credentials:</strong></p>
+    <ul style="list-style: none; padding-left: 0;">
+      <li><strong>Email:</strong> {email}</li>
+      <li><strong>Password:</strong> {password}</li>
+    </ul>
+
+    <p>For your security, please verify your email using the code below:</p>
+    <p style="background-color: #f1f1f1; padding: 10px; border-left: 4px solid #333; font-size: 1.2em; text-align: center;">
+      <strong>Verification Code:</strong> {verificationCode}
+    </p>
+
+    <p>To log in, visit our website and enter the credentials provided above. After logging in, you'll be prompted to enter the verification code to complete the email verification process.</p>
+
+    <p>If you have any questions or need further assistance, feel free to reach out to our support team. We’re happy to help!</p>
+
+    <p>Best regards,<br>Your App Team</p>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message, please do not reply to this email.</p>
+  </div>
+
+</body>
+</html>
+`;

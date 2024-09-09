@@ -2,6 +2,7 @@ import express from "express";
 import {
   getAll,
   getOneById,
+  patchUser,
   postUser,
 } from "../controllers/user.controller.js";
 import { ValidateId } from "../middleware/User.middleware.js";
@@ -14,5 +15,6 @@ router.get("/", getAll); //get all users
 
 router.param("id", ValidateId);
 router.get("/:id", getOneById);
-router.post("/:id", postUser);
+router.post("/", postUser);
+router.put("/:id", patchUser);
 export default router;
