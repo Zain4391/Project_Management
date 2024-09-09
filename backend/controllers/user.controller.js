@@ -23,7 +23,6 @@ export const getOneById = async (req, res) => {
   res.status(200).json({ User: req.user });
 };
 
-// TODO add signup functionality here as well, admin sends emails to the users with credentials and verification as well.
 export const postUser = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
@@ -108,17 +107,13 @@ export const patchUser = async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const verificationToken = generateVerificationCode();
-    const verificationTokenExpiresAT = new Date(
-      Date.now() + 24 * 60 * 60 * 1000
-    );
-    generateTokenSetCookie(res, id);
+    generateTokenSetCookie(res, id); //generate cookie for the user
 
     const response = await db.query(
-      "UPDATE Users SET email = $2, password = $3, verificationToken = $4, verificationTokenExpiry = $5 WHERE id = $1",
-      [id, email, hashedPassword, verificationToken, verificationTokenExpiresAT]
+      "UPDATE Users SET email = $2, password = $3, WHERE id = $1",
+      [id, email, hashedPassword]
     );
-
+    // send new credentials, user logs in with these credentials (may have to refactor email)
     const mailOptions = {
       from: "zainrasoolhashmi@gmail.com",
       to: email,
