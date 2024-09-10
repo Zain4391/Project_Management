@@ -169,3 +169,42 @@ export const ADMIN_USER_CREDNTAILS_EMAIL = `<!DOCTYPE html>
 </body>
 </html>
 `;
+
+export const ADMIN_USER_CREDENTIALS_UPDATED_EMAIL = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Account Credentials Updated</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  
+  <div style="background: linear-gradient(to right, #333, #444); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Your Account Credentials Updated!</h1>
+  </div>
+
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello <strong>{name}</strong>,</p>
+    
+    <p>We wanted to let you know that your account credentials have been successfully updated by the admin.</p>
+    
+    <p><strong>Your Updated Login Credentials:</strong></p>
+    <ul style="list-style: none; padding-left: 0;">
+      <li><strong>New Email:</strong> {email}</li>
+      <li><strong>New Password:</strong> {password}</li>
+    </ul>
+
+    <p>You can now use the updated credentials to log in to your account. For your security, you may be asked to verify your email after logging in.</p>
+
+    <p>If you did not request this change, or if you have any questions, please contact our support team immediately.</p>
+
+    <p>Best regards,<br>Your App Team</p>
+  </div>
+
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message, please do not reply to this email.</p>
+  </div>
+
+</body>
+</html>
+`;

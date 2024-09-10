@@ -3,7 +3,10 @@ import bcrypt from "bcryptjs";
 import { generateVerificationCode } from "../utils/generateVerificationCode.js";
 import { generateTokenSetCookie } from "../utils/generateTokenSetCookie.js";
 import { transporter } from "../nodemailer/nodemailer.config.js";
-import { ADMIN_USER_CREDNTAILS_EMAIL } from "../nodemailer/email_templates.js";
+import {
+  ADMIN_USER_CREDENTIALS_UPDATED_EMAIL,
+  ADMIN_USER_CREDNTAILS_EMAIL,
+} from "../nodemailer/email_templates.js";
 // CRUD on Users performed by Admin only
 
 export const getAll = async (req, res) => {
@@ -118,13 +121,12 @@ export const patchUser = async (req, res) => {
       from: "zainrasoolhashmi@gmail.com",
       to: email,
       subject: "Verify your email",
-      html: ADMIN_USER_CREDNTAILS_EMAIL.replace(
-        "{verificationCode}",
-        verificationToken
+      html: ADMIN_USER_CREDENTIALS_UPDATED_EMAIL.replace(
+        "{name}",
+        user.rows[0].name || "User"
       )
         .replace("{email}", email)
-        .replace("{password}", password)
-        .replace("{name}", user.rows[0].name || "USER"),
+        .replace("{password}", password),
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
