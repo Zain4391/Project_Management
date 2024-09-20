@@ -8,6 +8,7 @@ import { db } from "./db/Connect.js";
 import { Create_Tables } from "./models/project_manager.model.js";
 import authRoute from "./routes/authRoutes.js";
 import userRoute from "./routes/userRoutes.js";
+import projectRoute from "./routes/projectRoutes.js";
 dotenv.config(); //use .env variables
 const app = express();
 
@@ -26,9 +27,10 @@ if (!url) {
   process.exit(1); // Exit the process if the URL is not defined
 }
 
-//use all authentication routes
+//use all authentication & API routes routes
 app.use("/api/auth", authRoute);
-app.use("/", userRoute);
+app.use("/project", projectRoute);
+app.use("/user", userRoute);
 
 app.listen(PORT, () => {
   db.connect((err) => {
