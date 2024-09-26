@@ -32,6 +32,8 @@ app.use("/api/auth", authRoute);
 app.use("/project", projectRoute);
 app.use("/user", userRoute);
 
+//app.use("/project/task",taskRoute);
+
 app.listen(PORT, () => {
   db.connect((err) => {
     if (err) {
