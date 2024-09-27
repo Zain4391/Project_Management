@@ -33,7 +33,7 @@ export const postUser = async (req, res) => {
       res.status(400).json({ message: "Please fill in all required fields" });
     }
 
-    const result = await db.query("SELECT * FROM User WHERE email = $1", [
+    const result = await db.query("SELECT * FROM Users WHERE email = $1", [
       email,
     ]);
 
@@ -147,8 +147,8 @@ export const patchUser = async (req, res) => {
 };
 
 export const deleteUser = async (req, res) => {
-  const { id } = req.params;
   try {
+    const { id } = req.params;
     await db.query("DELETE FROM Users WHERE id = $1", [id]);
     res.status(200).json({ message: "User deleted" });
   } catch (error) {

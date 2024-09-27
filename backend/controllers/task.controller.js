@@ -1,4 +1,4 @@
-import db from "../db/Connect.js";
+import { db } from "../db/Connect.js";
 
 export const createTask = async (req, res) => {
   try {
@@ -9,6 +9,14 @@ export const createTask = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Please provide task title and status" });
+    }
+
+    const checkUser = await db.query("SELECT * FROM Users WHERE id = $1 ", [
+      assigned_to,
+    ]);
+
+    if (checkUser.rows.length === 0) {
+      return res.status(404).json({ message: "Member not found" });
     }
 
     const result = await db.query(

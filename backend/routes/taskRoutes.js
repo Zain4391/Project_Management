@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express from "express";
 import {
   createTask,
   getAllTasksForProject,
@@ -15,5 +15,8 @@ taskRouter.post("/", createTask);
 taskRouter.param("id", ValidateTaskId);
 taskRouter.put("/:taskId", updateTaskById);
 taskRouter.delete("/:taskId", deleteTaskById);
+
+// Mount the comments router under tasks
+taskRouter.use("/:taskId/comments", commentsRouter);
 
 export default taskRouter;

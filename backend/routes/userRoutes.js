@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deleteUser,
   getAll,
   getOneById,
   patchUser,
@@ -17,4 +18,5 @@ router.param("id", ValidateId);
 router.get("/:id", getOneById);
 router.post("/", postUser);
 router.put("/:id", patchUser);
+router.delete("/:id", deleteUser);
 export default router;
